@@ -1,0 +1,43 @@
+name: Release Drafter
+
+on:
+  workflow_call:
+    inputs:
+      config-name:
+        required: false
+        type: string
+        default: release-drafter.yaml
+      base-branch:
+        required: false
+        type: string
+        default: develop
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release Drafter
+        id: drafter
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: ${{ inputs.config-name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout Project
+        uses: actions/checkout@v3
+
+      - name: Get the new NPM version
+        run: |
+          npm version ${{ steps.drafter.outputs.tag_name }} --allow-same-version --no-git-tag-version
+          echo "The NPM version was bumped to ${{ steps.drafter.outputs.tag_name }}"
+
+      - name: Open a Pull Request with new version
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: 'Bumped the NPM version to match next release'
+          title: 'Bumped the NPM version to match next release'
+          commiter: GitHub <noreply@github.com>
+          branch: chore/npm-version-bump
+          labels: chore
+          base: ${{ inputs.base-branch }}
