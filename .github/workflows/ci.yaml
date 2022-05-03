@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # Timeout in minutes
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 16.14.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Tests
+        run: npm run test
+
+      - name: Audit
+        run: npm audit
