@@ -1,0 +1,53 @@
+name: Automatic deploy
+
+on:
+  workflow_call:
+    inputs:
+      helm-release-name:
+        required: true
+        type: string
+      prefix-namespace:
+        required: true
+        type: string
+
+env:
+  GATEKEEPER_CLIENT_ID: 'dev-fullstack-helm'
+  CLUSTER: 'DEV'
+
+jobs:
+  deploy-app:
+    strategy:
+      matrix:
+        namespace: [${{ inputs.prefix-namespace}}-devl, ${{ inputs.prefix-namespace}}-acpt, ${{ inputs.prefix-namespace}}-pprd]
+      max-parallel: 10
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Github event
+        run: cat ${GITHUB_EVENT_PATH}
+
+      - name: Checkout Project
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GITHUB_REF }}
+
+      - name: Checkout private actions
+        uses: actions/checkout@v3
+        with:
+          repository: lacapitale/github-actions-private
+          token: ${{ secrets.GH_PRIVATE_TOKEN }}
+          path: ./.github/github-actions-private
+
+      - name: Deploy
+        uses: ./.github/github-actions-private/gatekeeper-helm
+        with:
+          gatekeeper-client-id: '${{env.GATEKEEPER_CLIENT_ID}}'
+          gatekeeper-api-key: ${{secrets.GATEKEEPER_HELM_API_KEY}}
+          helm-release-name: ${{ inputs.helm-release-name }}
+          helm-namespace: '${{ matrix.namespace }}'
+          helm-values: 'values/${{ matrix.namespace }}.yaml'
+          helm-chart-repo-run-dir: './chart'
+          gke-cluster: '${{ env.CLUSTER }}'
