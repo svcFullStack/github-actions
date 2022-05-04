@@ -18,7 +18,7 @@ jobs:
   deploy-app:
     strategy:
       matrix:
-        namespace: [${{ inputs.prefix-namespace}}-devl, ${{ inputs.prefix-namespace}}-acpt, ${{ inputs.prefix-namespace}}-pprd]
+        namespace: ['${{ inputs.prefix-namespace }}-devl', '${{ inputs.prefix-namespace }}-acpt', '${{ inputs.prefix-namespace }}-pprd']
       max-parallel: 10
       fail-fast: false
 
@@ -44,8 +44,8 @@ jobs:
       - name: Deploy
         uses: ./.github/github-actions-private/gatekeeper-helm
         with:
-          gatekeeper-client-id: '${{env.GATEKEEPER_CLIENT_ID}}'
-          gatekeeper-api-key: ${{secrets.GATEKEEPER_HELM_API_KEY}}
+          gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
+          gatekeeper-api-key: ${{ secrets.GATEKEEPER_HELM_API_KEY }}
           helm-release-name: ${{ inputs.helm-release-name }}
           helm-namespace: '${{ matrix.namespace }}'
           helm-values: 'values/${{ matrix.namespace }}.yaml'
