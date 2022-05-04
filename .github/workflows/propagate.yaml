@@ -1,0 +1,79 @@
+name: Propagate
+
+on:
+  workflow_call:
+    inputs:
+      prefix-namespace:
+        required: true
+        type: string
+
+jobs:
+  deploy-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GITHUB_REF }}
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Checkout private actions
+        uses: actions/checkout@v3
+        with:
+          repository: lacapitale/github-actions-private
+          token: ${{ secrets.GH_PRIVATE_TOKEN }}
+          path: ./.github/github-actions-private
+
+      - name: Extract image name devl
+        if: github.event.inputs.environment == 'acpt'
+        id: extract-image-name-devl
+        uses: ./.github/github-actions-private/extract-image-value
+        with:
+          values-file: '/chart/values/${{ inputs.prefix-namespace }}-devl.yaml'
+
+      - name: Extract image name acpt
+        if: github.event.inputs.environment == 'pprd'
+        id: extract-image-name-acpt
+        uses: ./.github/github-actions-private/extract-image-value
+        with:
+          values-file: '/chart/values/${{ inputs.prefix-namespace }}-acpt.yaml'
+
+      - name: Extract image name pprd
+        if: github.event.inputs.environment == 'prod'
+        id: extract-image-name-pprd
+        uses: ./.github/github-actions-private/extract-image-value
+        with:
+          values-file: '/chart/values/${{ inputs.prefix-namespace }}-pprd.yaml'
+
+      - name: Update values file
+        id: update-values
+        uses: ./.github/github-actions-private/update-image-value
+        with:
+          image-name: ${{ steps.extract-image-name-devl.outputs.image-name || steps.extract-image-name-acpt.outputs.image-name || steps.extract-image-name-pprd.outputs.image-name }}
+          values-file: '/chart/values/${{ inputs.prefix-namespace }}-${{ github.event.inputs.environment }}.yaml'
+
+      - name: Temporarily disable "include administrators" branch protection
+        uses: benjefferies/branch-protection-bot@master
+        if: always()
+        with:
+          access_token: ${{ secrets.GH_PRIVATE_TOKEN }}
+
+      - name: Commit changes
+        if: steps.update-values.outputs.status == 'updated'
+        uses: EndBug/add-and-commit@v4
+        with:
+          author_name: svcFullStack
+          author_email: svc-github-fullstack@lacapitale.com
+          message: 'updated ${{ github.event.inputs.environment }} image version from propagate'
+          add: '*.yaml'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PRIVATE_TOKEN }}
+
+      - name: Enable "include administrators" branch protection
+        uses: benjefferies/branch-protection-bot@master
+        if: always()
+        with:
+          access_token: ${{ secrets.GH_PRIVATE_TOKEN }}
