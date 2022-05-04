@@ -33,8 +33,8 @@ jobs:
         uses: ./.github/github-actions-private/gatekeeper-helm
         with:
           gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
-          gatekeeper-api-key: ${{ secrets.GATEKEEPER_HELM_API_KEY }}
-          helm-release-name: ${{ inputs.helm-release-name }}
+          gatekeeper-api-key: '${{ secrets.GATEKEEPER_HELM_API_KEY }}'
+          helm-release-name: '${{ inputs.helm-release-name }}'
           helm-namespace: '${{ github.event.inputs.environment }}'
           helm-values: 'values/${{ github.event.inputs.environment }}.yaml'
           helm-chart-repo-run-dir: './chart'
