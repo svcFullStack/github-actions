@@ -1,0 +1,87 @@
+name: Docker build
+
+on:
+  workflow_call:
+    inputs:
+      helm-release-name:
+        required: true
+        type: string
+      prefix-namespace:
+        required: true
+        type: string
+      node-version:
+        required: true
+        type: string
+
+env:
+  CONTAINER_REGISTRY: gcr.io/devl-fullstack-252416
+  GITHUB_USER: ${{ github.actor }}
+  NODE_VERSION: ${{ inputs.node-version }}
+  GATEKEEPER_CLIENT_ID: prod-fullstack-gcr
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Checkout private actions
+        uses: actions/checkout@v3
+        with:
+          repository: lacapitale/github-actions-private
+          token: ${{ secrets.GH_PRIVATE_TOKEN }}
+          path: ./.github/github-actions-private
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          version: '276.0.0'
+          service_account_key: ${{ secrets.GCP_GHA_ACCOUNT_KEY }}
+
+      - name: Git infos
+        id: gitinfo
+        uses: ./.github/github-actions-private/ga-git-info
+
+      - name: Build Docker Image
+        id: docker-image
+        uses: ./.github/github-actions-private/docker-build-push
+        with:
+          container-registry: '${{ env.CONTAINER_REGISTRY }}'
+          gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
+          gatekeeper-api-key: ${{ secrets.GATEKEEPER_API_KEY }}
+          image-tags: ${{steps.gitinfo.outputs.commit-ref-san}}-${{steps.gitinfo.outputs.commit-short-hash}}
+
+      - name: Update values file
+        id: update-values
+        uses: ./.github/github-actions-private/update-image-value
+        with:
+          image-name: ${{ steps.docker-image.outputs.image-tag }}
+          values-file: '/chart/values/${{ inputs.prefix-namespace }}-devl.yaml'
+
+      - name: Temporarily disable "include administrators" branch protection
+        uses: benjefferies/branch-protection-bot@master
+        if: always()
+        with:
+          access_token: ${{ secrets.GH_PRIVATE_TOKEN }}
+
+      - name: Commit changes
+        if: steps.update-values.outputs.status == 'updated'
+        uses: EndBug/add-and-commit@v4
+        with:
+          author_name: svcFullStack
+          author_email: svc-github-fullstack@lacapitale.com
+          message: 'updated image version from docker build'
+          add: '*.yaml'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PRIVATE_TOKEN }}
+
+      - name: Enable "include administrators" branch protection
+        uses: benjefferies/branch-protection-bot@master
+        if: always()
+        with:
+          access_token: ${{ secrets.GH_PRIVATE_TOKEN }}
