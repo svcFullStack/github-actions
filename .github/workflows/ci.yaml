@@ -6,32 +6,92 @@ on:
       node-version:
         required: true
         type: string
+      run-test:
+        required: false
+        type: boolean
+        default: true
 
 jobs:
-  ci:
+  debug:
     runs-on: ubuntu-latest
     timeout-minutes: 5 # Timeout in minutes
-
+    steps:
+      - run: |
+        echo "github.event ${{ toJSON(github.event) }}"
+        echo "github.base_ref ${{ github.base_ref }}"
+        echo "github.head_ref ${{ github.head_ref }}"
+        echo "github.ref_type ${{ github.ref_type }}"
+        echo "github.path ${{ github.path }}"
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # Timeout in minutes
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
 
-      - name: Use Node.js
+      - name: Use Node.js ${{ inputs.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
 
       - name: Install dependencies
-        run: npm install
+        uses: bahmutov/npm-install@v1
 
       - name: Lint
         run: npm run lint
 
-      - name: Build
-        run: npm run build
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # Timeout in minutes
+    if: ${{ inputs.run-test }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
 
       - name: Tests
         run: npm run test
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # Timeout in minutes
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+
+      - name: Build
+        run: npm run build --prod
+
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # Timeout in minutes
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
 
       - name: Audit
         run: npm audit

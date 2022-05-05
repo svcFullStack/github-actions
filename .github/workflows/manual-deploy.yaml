@@ -3,7 +3,7 @@ name: Manual deploy
 on:
   workflow_call:
     inputs:
-      helm-release-name:
+      namespace:
         required: true
         type: string
 
@@ -17,6 +17,9 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Github event
+        run: cat ${GITHUB_EVENT_PATH}
+
       - name: Checkout Project
         uses: actions/checkout@v3
         with:
@@ -34,8 +37,8 @@ jobs:
         with:
           gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
           gatekeeper-api-key: '${{ secrets.GATEKEEPER_HELM_API_KEY }}'
-          helm-release-name: '${{ inputs.helm-release-name }}'
-          helm-namespace: '${{ github.event.inputs.environment }}'
-          helm-values: 'values/${{ github.event.inputs.environment }}.yaml'
+          helm-release-name: '${{ github.event.repository.name }}'
+          helm-namespace: '${{ inputs.namespace }}'
+          helm-values: 'values/${{ inputs.namespace }}.yaml'
           helm-chart-repo-run-dir: './chart'
           gke-cluster: '${{ env.CLUSTER }}'

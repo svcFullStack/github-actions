@@ -3,9 +3,6 @@ name: Docker build
 on:
   workflow_call:
     inputs:
-      helm-release-name:
-        required: true
-        type: string
       prefix-namespace:
         required: true
         type: string
@@ -24,6 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Github event
+        run: cat ${GITHUB_EVENT_PATH}
+
       - name: Checkout Project
         uses: actions/checkout@v3
         with:
