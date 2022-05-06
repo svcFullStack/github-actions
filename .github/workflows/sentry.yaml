@@ -1,0 +1,61 @@
+name: CI on Push (Sentry)
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: true
+        type: string
+      url-prefix:
+        required: true
+        type: string
+      sentry-project-name:
+        required: true
+        type: string  
+
+jobs:
+  sentry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # Timeout in minutes
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+
+      - name: Get package.json version for CI
+        run: echo "PACKAGE_VERSION=$(grep '"version"' package.json | cut -d '"' -f 4)" >> $GITHUB_ENV
+
+      - name: Build
+        run: npm run build --prod
+
+      - name: Setup Sentry CLI
+        uses: mathrix-education/setup-sentry-cli@1.2.0
+        with:
+          version: latest
+          token: ${{ SECRETS.SENTRY_AUTH_TOKEN }}
+          organization: la-capitale-assureur-de-ladmin
+          project: ${{ inputs.sentry-project-name }}
+
+      - name: Create new release
+        run: sentry-cli releases new $PACKAGE_VERSION
+        env:
+          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+      
+      - name: Upload sourcemaps to Sentry
+        run: sentry-cli releases files $PACKAGE_VERSION upload-sourcemaps ./dist --url-prefix '${{ inputs.url-prefix }}' --validate
+        env:
+          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+      
+      - name: Finalize release version to Sentry
+        run: sentry-cli releases finalize $PACKAGE_VERSION
+        env:
+          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+  #     #sentry-cli releases set-commits --auto $PACKAGE_VERSION
