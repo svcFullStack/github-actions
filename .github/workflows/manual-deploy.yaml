@@ -6,6 +6,11 @@ on:
       namespace:
         required: true
         type: string
+    secrets:
+      GH_PRIVATE_TOKEN: 
+        required: true
+      GATEKEEPER_HELM_API_KEY: 
+        required: true
 
 env:
   GATEKEEPER_CLIENT_ID: 'dev-fullstack-helm'
