@@ -2,6 +2,14 @@ name: Update package
 
 on:
   workflow_call:
+    inputs:
+      node-version:
+        required: true
+        type: string
+      build-command:
+        required: false
+        type: string
+        default: npm run build
 
 jobs:
   package-update:
@@ -24,3 +32,14 @@ jobs:
           UPDATE_COMMAND: npm
         with:
           args: update
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+
+      - name: Build
+        run: ${{ inputs.build-command }}

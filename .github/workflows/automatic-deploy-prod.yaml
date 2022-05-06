@@ -3,9 +3,6 @@ name: Automatic deploy to prod
 on:
   workflow_call:
     inputs:
-      helm-release-name:
-        required: true
-        type: string
       prefix-namespace:
         required: true
         type: string
@@ -27,6 +24,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ env.GITHUB_REF }}
+          persist-credentials: false
+          fetch-depth: 0
 
       - name: Checkout private actions
         uses: actions/checkout@v3
@@ -40,7 +39,7 @@ jobs:
         with:
           gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
           gatekeeper-api-key: ${{ secrets.GATEKEEPER_HELM_API_KEY_PROD }}
-          helm-release-name: ${{ inputs.helm-release-name }}
+          helm-release-name: '${{ github.event.repository.name }}'
           helm-namespace: '${{ inputs.prefix-namespace }}-prod'
           helm-values: 'values/${{ inputs.prefix-namespace }}-prod.yaml'
           helm-chart-repo-run-dir: './chart'
