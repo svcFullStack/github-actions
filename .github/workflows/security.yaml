@@ -1,0 +1,27 @@
+name: AutomaticCronSecurityAction
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # Timeout in minutes
+    steps:
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '14' # The JDK version to make available on the path.
+          java-package: jdk # (jre, jdk, or jdk+fx) - defaults to jdk
+          architecture: x64 # (x64 or x86) - defaults to x64
+
+      - name: Checkout project
+        uses: actions/checkout@v3
+        
+      - name: Security
+        env:
+          SUPER_SECRET: ${{ secrets.SECURITY_CHECK_TOKEN }}
+          BACKEND_URL: https://security.apis.lacapitale.com/securityhub
+        run: |
+          curl -o ./securitycheckclient.zip -H "X-API-KEY:$SUPER_SECRET" "$BACKEND_URL"/api/v1/general/clientzip?name=${GITHUB_REPOSITORY#*/}
+          unzip ./securitycheckclient.zip
+          java -classpath securitycheck/lib/*: SecurityCheckClient "$SUPER_SECRET" "${GITHUB_REPOSITORY#*/}" "${GITHUB_REF##*/}" "$BACKEND_URL" securitycheck/securitycheck.properties
