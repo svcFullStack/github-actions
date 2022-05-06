@@ -1,0 +1,37 @@
+name: Npm audit fix
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: true
+        type: string
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # Timeout in minutes
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+  
+      - name: Validate if vulnaribility
+        run: |
+          npm audit fix --dry-run --json --audit-level=high
+
+      - name: Create audit fix pr
+        uses: ybiquitous/npm-audit-fix-action@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: 'chore/npm-audit-fix'
+          default_branch: ${{ github.event.repository.default_branch }}
+          commit_title: 'NPM audit fix'
+          labels: 'chore'
