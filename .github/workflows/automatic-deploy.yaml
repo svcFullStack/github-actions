@@ -25,13 +25,8 @@ jobs:
       - name: Github event
         run: cat ${GITHUB_EVENT_PATH}
 
-      - name: Checkout Project
+      - name: Checkout project
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_PRIVATE_TOKEN }}
-          ref: ${{ env.GITHUB_REF }}
-          persist-credentials: false
-          fetch-depth: 0
 
       - name: Checkout private actions
         uses: actions/checkout@v3
