@@ -37,10 +37,10 @@ jobs:
           echo $env:TOTO
           echo %TOTO%
 
-      - if: ${{ env.TOTO != '' }}
+      - if: ${{ secrets.TOTO != '' }}
         run: echo 'This step will only run if the secret has a value set.'
 
-      - if: ${{ env.TOTO == '' }}
+      - if: ${{ secrets.TOTO == '' }}
         run: echo 'This step will only run if the secret does not have a value set.'
 
   lint:
