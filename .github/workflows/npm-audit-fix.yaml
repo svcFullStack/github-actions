@@ -31,7 +31,7 @@ jobs:
       - name: Set the value
         id: step_one
         run: |
-          echo "action_state=yellow" >> $GITHUB_ENV
+          echo "action_state=$(npm audit fix --dry-run --json --audit-level=high)" >> $GITHUB_ENV
   
       - name: Use the value
         id: step_two
@@ -44,7 +44,6 @@ jobs:
         run: |
           HAS_VULNERABILITIES=$(npm audit fix --dry-run --json --audit-level=high) || false
           echo "::set-output name=hasVulnerabilities::HAS_VULNERABILITIES"
-
 
       - name: Create audit fix pr
         if: ${{ steps.has-vulnerabilities.outputs.hasVulnerabilities }}
