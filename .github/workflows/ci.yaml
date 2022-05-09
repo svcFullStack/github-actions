@@ -36,6 +36,7 @@ jobs:
           echo $TOTO
           echo $env:TOTO
           echo %TOTO%
+          echo "test secrets.TATA: ${{ secrets.TATA }}"
 
       - if: ${{ env.TOTO != '' }}
         run: echo 'This step will only run if the secret has a value set.'

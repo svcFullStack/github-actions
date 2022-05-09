@@ -26,10 +26,14 @@ jobs:
         uses: bahmutov/npm-install@v1
   
       - name: Validate if vulnaribility
+        id: has-vulnerabilities
         run: |
-          npm audit fix --dry-run --json --audit-level=high
+          HAS_VULNERABILITIES=$(npm audit fix --dry-run --json --audit-level=high) || true
+          echo "::set-output name=hasVulnerabilities::HAS_VULNERABILITIES"
+
 
       - name: Create audit fix pr
+        if: ${{ steps.has-vulnerabilities.outputs.hasVulnerabilities != '' }}
         uses: ybiquitous/npm-audit-fix-action@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
