@@ -8,7 +8,7 @@ on:
         type: string
         default: release-drafter.yaml
     secrets:
-      GITHUB_TOKEN:
+      GH_TOKEN:
         required: true
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
         with:
           config-name: ${{ inputs.CONFIG_NAME }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Checkout Project
         uses: actions/checkout@v3

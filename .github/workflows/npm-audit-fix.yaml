@@ -7,7 +7,7 @@ on:
         required: true
         type: string
     secrets:
-      GITHUB_TOKEN:
+      GH_TOKEN:
         required: true
 
 jobs:
@@ -39,7 +39,7 @@ jobs:
         if: ${{ steps.has-vulnerabilities.outputs.hasVulnerabilities }}
         uses: ybiquitous/npm-audit-fix-action@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GH_TOKEN }}
           branch: 'chore/npm-audit-fix'
           default_branch: ${{ github.event.repository.default_branch }}
           commit_title: 'NPM audit fix'

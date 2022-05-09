@@ -8,7 +8,7 @@ on:
         type: string
         default: .github/pr-labeler.yaml
     secrets:
-      GITHUB_TOKEN:
+      GH_TOKEN:
         required: true
 
 jobs:
@@ -19,4 +19,4 @@ jobs:
         with:
           configuration-path: ${{ inputs.CONFIGURATION_PATH }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
