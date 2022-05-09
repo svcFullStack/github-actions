@@ -26,19 +26,19 @@ jobs:
           fetch-depth: 0
 
       - run : |
+          echo "environment: ${{ environment }}"
           echo 'printing envs'
           env
           echo 'printing secrets'
-          toJSON
+          secrets
 
       - name: Debug
         run: |
-          echo "test secrets.TOTO: ${{ Tsecrets }}"
+          echo "test secrets.TOTO: ${{ secrets }}"
           echo "test env.TOTO: ${{ env.TOTO }}"
           echo $TOTO
           echo $env:TOTO
           echo %TOTO%
-          echo "environment: ${{ environment }}"
 
       - if: ${{ env.TOTO != '' }}
         run: echo 'This step will only run if the secret has a value set.'
