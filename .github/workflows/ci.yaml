@@ -15,14 +15,9 @@ jobs:
   debug:
     runs-on: ubuntu-latest
     timeout-minutes: 5 # Timeout in minutes
-    environment: Test
+    environment: development
 
     steps:
-      - name: Debug
-        run: |
-          echo "test secrets.TOTO: ${{ secrets.TOTO }}"
-          echo "test env.TOTO: ${{ env.TOTO }}"
-
       - name: Checkout project
         uses: actions/checkout@v3
         with:
@@ -31,6 +26,11 @@ jobs:
       - run : |
           echo 'printing envs'
           env
+
+      - run: |
+          echo "test 1: $TOTO"
+          echo "test 2: $env:TOTO"
+          echo "test 3: %TOTO%"
 
       - name: Debug
         run: |
