@@ -3,9 +3,12 @@ name: Npm audit fix
 on:
   workflow_call:
     inputs:
-      node-version:
+      NODE_VERSION:
         required: true
         type: string
+    secrets:
+      GITHUB_TOKEN:
+        required: true
 
 jobs:
   run:
@@ -17,10 +20,10 @@ jobs:
         with:
           ref: ${{ env.GITHUB_REF }}
 
-      - name: Use Node.js ${{ inputs.node-version }}
+      - name: Use Node.js ${{ inputs.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: ${{ inputs.NODE_VERSION }}
 
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
@@ -28,12 +31,12 @@ jobs:
       - name: Validate if vulnaribility
         id: has-vulnerabilities
         run: |
-          HAS_VULNERABILITIES=$(npm audit fix --dry-run --json --audit-level=high) || true
+          HAS_VULNERABILITIES=$(npm audit fix --dry-run --json --audit-level=high) || false
           echo "::set-output name=hasVulnerabilities::HAS_VULNERABILITIES"
 
 
       - name: Create audit fix pr
-        if: ${{ steps.has-vulnerabilities.outputs.hasVulnerabilities != '' }}
+        if: ${{ steps.has-vulnerabilities.outputs.hasVulnerabilities }}
         uses: ybiquitous/npm-audit-fix-action@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

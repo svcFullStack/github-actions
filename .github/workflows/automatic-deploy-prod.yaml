@@ -3,9 +3,14 @@ name: Automatic deploy to prod
 on:
   workflow_call:
     inputs:
-      prefix-namespace:
+      PREFIX_NAMESPACE:
         required: true
         type: string
+    secrets:
+      GH_PRIVATE_TOKEN:
+        required: true
+      GATEKEEPER_HELM_API_KEY_PROD:
+        required: true
 
 env:
   GATEKEEPER_CLIENT_ID: 'prod-fullstack-helm'
@@ -40,7 +45,7 @@ jobs:
           gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
           gatekeeper-api-key: ${{ secrets.GATEKEEPER_HELM_API_KEY_PROD }}
           helm-release-name: '${{ github.event.repository.name }}'
-          helm-namespace: '${{ inputs.prefix-namespace }}-prod'
-          helm-values: 'values/${{ inputs.prefix-namespace }}-prod.yaml'
+          helm-namespace: '${{ inputs.PREFIX_NAMESPACE }}-prod'
+          helm-values: 'values/${{ inputs.PREFIX_NAMESPACE }}-prod.yaml'
           helm-chart-repo-run-dir: './chart'
           gke-cluster: '${{ env.CLUSTER }}'

@@ -3,15 +3,18 @@ name: CI on Push (Sentry)
 on:
   workflow_call:
     inputs:
-      node-version:
+      NODE_VERSION:
         required: true
         type: string
-      url-prefix:
+      URL_PREFIX:
         required: true
         type: string
-      sentry-project-name:
+      SENTRY_PROJECT_NAME:
         required: true
-        type: string  
+        type: string
+    secrets:
+      SENTRY_AUTH_TOKEN:
+        required: true
 
 jobs:
   sentry:
@@ -24,10 +27,10 @@ jobs:
         with:
           ref: ${{ env.GITHUB_REF }}
 
-      - name: Use Node.js ${{ inputs.node-version }}
+      - name: Use Node.js ${{ inputs.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: ${{ inputs.NODE_VERSION }}
 
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
@@ -42,9 +45,9 @@ jobs:
         uses: mathrix-education/setup-sentry-cli@1.2.0
         with:
           version: latest
-          token: ${{ SECRETS.SENTRY_AUTH_TOKEN }}
+          token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           organization: la-capitale-assureur-de-ladmin
-          project: ${{ inputs.sentry-project-name }}
+          project: ${{ inputs.SENTRY_PROJECT_NAME }}
 
       - name: Create new release
         run: sentry-cli releases new $PACKAGE_VERSION
@@ -52,7 +55,7 @@ jobs:
           PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
       
       - name: Upload sourcemaps to Sentry
-        run: sentry-cli releases files $PACKAGE_VERSION upload-sourcemaps ./dist --url-prefix '${{ inputs.url-prefix }}' --validate
+        run: sentry-cli releases files $PACKAGE_VERSION upload-sourcemaps ./dist --url-prefix '${{ inputs.URL_PREFIX }}' --validate
         env:
           PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
       

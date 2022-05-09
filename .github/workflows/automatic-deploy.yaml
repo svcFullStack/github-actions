@@ -3,9 +3,14 @@ name: Automatic deploy
 on:
   workflow_call:
     inputs:
-      prefix-namespace:
+      PREFIX_NAMESPACE:
         required: true
         type: string
+    secrets:
+      GH_PRIVATE_TOKEN:
+        required: true
+      GATEKEEPER_HELM_API_KEY:
+        required: true
 
 env:
   GATEKEEPER_CLIENT_ID: 'dev-fullstack-helm'
@@ -15,7 +20,7 @@ jobs:
   deploy-app:
     strategy:
       matrix:
-        namespace: ['${{ inputs.prefix-namespace }}-devl', '${{ inputs.prefix-namespace }}-acpt', '${{ inputs.prefix-namespace }}-pprd']
+        namespace: ['${{ inputs.PREFIX_NAMESPACE }}-devl', '${{ inputs.PREFIX_NAMESPACE }}-acpt', '${{ inputs.PREFIX_NAMESPACE }}-pprd']
       max-parallel: 10
       fail-fast: false
     runs-on: ubuntu-latest

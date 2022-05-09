@@ -3,47 +3,15 @@ name: CI
 on:
   workflow_call:
     inputs:
-      node-version:
+      NODE_VERSION:
         required: true
         type: string
-      run-test:
+      RUN_TEST:
         required: false
         type: boolean
         default: true
 
 jobs:
-  debug:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5 # Timeout in minutes
-    environment: development
-
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ env.GITHUB_REF }}
-          persist-credentials: true
-          fetch-depth: 0
-
-      - run : |
-          echo 'printing envs'
-          env
-
-      - name: Debug
-        run: |
-          echo "test secrets.TOTO: ${{ secrets.TOTO }}"
-          echo "test env.TOTO: ${{ env.TOTO }}"
-          echo $TOTO
-          echo $env:TOTO
-          echo %TOTO%
-          echo "test secrets.TATA: ${{ secrets.TATA }}"
-
-      - if: ${{ env.TOTO != '' }}
-        run: echo 'This step will only run if the secret has a value set.'
-
-      - if: ${{ env.TOTO == '' }}
-        run: echo 'This step will only run if the secret does not have a value set.'
-
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 5 # Timeout in minutes
@@ -53,10 +21,10 @@ jobs:
         with:
           ref: ${{ env.GITHUB_REF }}
 
-      - name: Use Node.js ${{ inputs.node-version }}
+      - name: Use Node.js ${{ inputs.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: ${{ inputs.NODE_VERSION }}
 
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
@@ -74,10 +42,10 @@ jobs:
         with:
           ref: ${{ env.GITHUB_REF }}
 
-      - name: Use Node.js ${{ inputs.node-version }}
+      - name: Use Node.js ${{ inputs.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: ${{ inputs.NODE_VERSION }}
 
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
@@ -94,10 +62,10 @@ jobs:
         with:
           ref: ${{ env.GITHUB_REF }}
 
-      - name: Use Node.js ${{ inputs.node-version }}
+      - name: Use Node.js ${{ inputs.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: ${{ inputs.NODE_VERSION }}
 
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
@@ -115,10 +83,10 @@ jobs:
         with:
           ref: ${{ env.GITHUB_REF }}
 
-      - name: Use Node.js ${{ inputs.node-version }}
+      - name: Use Node.js ${{ inputs.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: ${{ inputs.NODE_VERSION }}
 
       - name: Install dependencies
         uses: bahmutov/npm-install@v1

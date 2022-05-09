@@ -3,10 +3,13 @@ name: Release Drafter
 on:
   workflow_call:
     inputs:
-      config-name:
+      CONFIG_NAME:
         required: false
         type: string
         default: release-drafter.yaml
+    secrets:
+      GITHUB_TOKEN:
+        required: true
 
 jobs:
   update_release_draft:
@@ -16,7 +19,7 @@ jobs:
         id: drafter
         uses: release-drafter/release-drafter@v5
         with:
-          config-name: ${{ inputs.config-name }}
+          config-name: ${{ inputs.CONFIG_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

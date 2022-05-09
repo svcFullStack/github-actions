@@ -3,17 +3,24 @@ name: Docker build
 on:
   workflow_call:
     inputs:
-      prefix-namespace:
+      PREFIX_NAMESPACE:
         required: true
         type: string
-      node-version:
+      NODE_VERSION:
         required: true
         type: string
+    secrets:
+      GH_PRIVATE_TOKEN:
+        required: true
+      GCP_GHA_ACCOUNT_KEY:
+        required: true
+      GATEKEEPER_API_KEY:
+        required: true
 
 env:
   CONTAINER_REGISTRY: gcr.io/devl-fullstack-252416
   GITHUB_USER: ${{ github.actor }}
-  NODE_VERSION: ${{ inputs.node-version }}
+  NODE_VERSION: ${{ inputs.NODE_VERSION }}
   GATEKEEPER_CLIENT_ID: prod-fullstack-gcr
 
 jobs:
@@ -62,7 +69,7 @@ jobs:
         uses: ./.github/github-actions-private/update-image-value
         with:
           image-name: ${{ steps.docker-image.outputs.image-tag }}
-          values-file: '/chart/values/${{ inputs.prefix-namespace }}-devl.yaml'
+          values-file: '/chart/values/${{ inputs.PREFIX_NAMESPACE }}-devl.yaml'
 
       - name: Temporarily disable "include administrators" branch protection
         uses: benjefferies/branch-protection-bot@master

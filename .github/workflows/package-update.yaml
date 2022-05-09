@@ -3,13 +3,16 @@ name: Update package
 on:
   workflow_call:
     inputs:
-      node-version:
+      NODE_VERSION:
         required: true
         type: string
-      build-command:
+      BUILD_COMMAND:
         required: false
         type: string
         default: npm run build
+    secrets:
+      GITHUB_TOKEN:
+        required: true
 
 jobs:
   package-update:
@@ -44,4 +47,4 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: Build
-        run: ${{ inputs.build-command }}
+        run: ${{ inputs.BUILD_COMMAND }}

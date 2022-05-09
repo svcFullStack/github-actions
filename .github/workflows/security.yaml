@@ -2,6 +2,9 @@ name: AutomaticCronSecurityAction
 
 on:
   workflow_call:
+    secrets:
+      SECURITY_CHECK_TOKEN:
+        required: true
 
 jobs:
   build:

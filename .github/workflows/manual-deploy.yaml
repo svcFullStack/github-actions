@@ -3,7 +3,13 @@ name: Manual deploy
 on:
   workflow_call:
     inputs:
-      namespace:
+      NAMESPACE:
+        required: true
+        type: string
+      GATEKEEPER_CLIENT_ID:
+        required: true
+        type: string
+      CLUSTER:
         required: true
         type: string
     secrets:
@@ -11,10 +17,6 @@ on:
         required: true
       GATEKEEPER_HELM_API_KEY: 
         required: true
-
-env:
-  GATEKEEPER_CLIENT_ID: 'dev-fullstack-helm'
-  CLUSTER: 'DEV'
 
 jobs:
   deploy-app:
@@ -40,10 +42,10 @@ jobs:
       - name: Deploy
         uses: ./.github/github-actions-private/gatekeeper-helm
         with:
-          gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
+          gatekeeper-client-id: '${{ inputs.GATEKEEPER_CLIENT_ID }}'
           gatekeeper-api-key: '${{ secrets.GATEKEEPER_HELM_API_KEY }}'
           helm-release-name: '${{ github.event.repository.name }}'
-          helm-namespace: '${{ inputs.namespace }}'
-          helm-values: 'values/${{ inputs.namespace }}.yaml'
+          helm-namespace: '${{ inputs.NAMESPACE }}'
+          helm-values: 'values/${{ inputs.NAMESPACE }}.yaml'
           helm-chart-repo-run-dir: './chart'
-          gke-cluster: '${{ env.CLUSTER }}'
+          gke-cluster: '${{ inputs.CLUSTER }}'
