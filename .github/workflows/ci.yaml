@@ -16,10 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5 # Timeout in minutes
     environment: Test
-    env:
-      super_secret: ${{ secrets.TOTO }}
 
     steps:
+      - name: Debug
+        run: |
+          echo "test secrets.TOTO: ${{ secrets.TOTO }}"
+          echo "test env.TOTO: ${{ env.TOTO }}"
+
       - name: Checkout project
         uses: actions/checkout@v3
         with:
@@ -29,12 +32,6 @@ jobs:
         run: |
           echo "test secrets.TOTO: ${{ secrets.TOTO }}"
           echo "test env.TOTO: ${{ env.TOTO }}"
-
-      - if: ${{ env.super_secret != '' }}
-        run: echo 'This step will only run if the secret has a value set.'
-
-      - if: ${{ env.super_secret == '' }}
-        run: echo 'This step will only run if the secret does not have a value set.'
 
   lint:
     runs-on: ubuntu-latest
