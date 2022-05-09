@@ -28,19 +28,22 @@ jobs:
       - run : |
           echo 'printing envs'
           env
+          echo 'printing secrets'
+          toJSON
 
       - name: Debug
         run: |
-          echo "test secrets.TOTO: ${{ secrets.TOTO }}"
+          echo "test secrets.TOTO: ${{ Tsecrets }}"
           echo "test env.TOTO: ${{ env.TOTO }}"
           echo $TOTO
           echo $env:TOTO
           echo %TOTO%
+          echo "environment: ${{ environment }}"
 
-      - if: ${{ secrets.TOTO != '' }}
+      - if: ${{ env.TOTO != '' }}
         run: echo 'This step will only run if the secret has a value set.'
 
-      - if: ${{ secrets.TOTO == '' }}
+      - if: ${{ env.TOTO == '' }}
         run: echo 'This step will only run if the secret does not have a value set.'
 
   lint:
