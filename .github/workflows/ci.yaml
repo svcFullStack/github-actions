@@ -43,7 +43,6 @@ jobs:
       - if: ${{ env.TOTO == '' }}
         run: echo 'This step will only run if the secret does not have a value set.'
 
-
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 5 # Timeout in minutes
