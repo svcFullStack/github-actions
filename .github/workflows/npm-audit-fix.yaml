@@ -27,12 +27,7 @@ jobs:
 
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
-  
-      - name: Set the value
-        id: step_one
-        run: |
-          echo "action_state=$(npm audit fix --dry-run --json --audit-level=high)" >> $GITHUB_ENV
-  
+
       - name: Use the value
         id: step_two
         run: |
