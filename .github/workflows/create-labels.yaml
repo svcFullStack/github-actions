@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout Project
         uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GITHUB_REF }}
 
       - name: Creating labels
         uses: lannonbr/issue-label-manager-action@3.0.1

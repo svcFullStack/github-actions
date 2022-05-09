@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GITHUB_REF }}
 
       - name: Use Node.js ${{ inputs.node-version }}
         uses: actions/setup-node@v3

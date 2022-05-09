@@ -22,6 +22,8 @@ jobs:
 
       - name: Checkout Project
         uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GITHUB_REF }}
 
       - name: Get the new NPM version
         run: |

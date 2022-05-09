@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: checkout project
         uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GITHUB_REF }}
 
       - name: set remote url
         run: git remote set-url --push origin https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
