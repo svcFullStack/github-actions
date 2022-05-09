@@ -29,8 +29,8 @@ jobs:
           ref: ${{ env.GITHUB_REF }}
 
       - run : |
-        echo 'printing envs'
-        env
+          echo 'printing envs'
+          env
 
       - name: Debug
         run: |
