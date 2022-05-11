@@ -35,7 +35,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 5 # Timeout in minutes
-    if: ${{ inputs.run-test }}
+    if: ${{ inputs.RUN_TEST }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
