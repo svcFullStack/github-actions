@@ -6,26 +6,41 @@ on:
       PREFIX_NAMESPACE:
         required: true
         type: string
-    secrets:
-      GH_PRIVATE_TOKEN:
-        required: true
-      GATEKEEPER_HELM_API_KEY:
-        required: true
-
-env:
-  GATEKEEPER_CLIENT_ID: 'dev-fullstack-helm'
-  CLUSTER: 'DEV'
 
 jobs:
-  deploy-app:
-    strategy:
-      matrix:
-        namespace: ['${{ inputs.PREFIX_NAMESPACE }}-devl', '${{ inputs.PREFIX_NAMESPACE }}-acpt', '${{ inputs.PREFIX_NAMESPACE }}-pprd']
-      max-parallel: 10
-      fail-fast: false
+  get-namespaces:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      namespaces: ${{ steps.affected-namespaces.outputs.changes }}
+    steps:
+      - name: Github event
+        run: cat ${GITHUB_EVENT_PATH}
 
+      - name: Checkout project
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GITHUB_REF }}
+
+      - name: Get affected namespaces
+        uses: dorny/paths-filter@v2
+        id: affected-namespaces
+        with:
+          filters: |
+            ${{ inputs.PREFIX_NAMESPACE }}-devl: chart/values/${{ inputs.PREFIX_NAMESPACE }}-devl.yaml
+            ${{ inputs.PREFIX_NAMESPACE }}-acpt: chart/values/${{ inputs.PREFIX_NAMESPACE }}-acpt.yaml
+            ${{ inputs.PREFIX_NAMESPACE }}-pprd: chart/values/${{ inputs.PREFIX_NAMESPACE }}-pprd.yaml
+            ${{ inputs.PREFIX_NAMESPACE }}-prod: chart/values/${{ inputs.PREFIX_NAMESPACE }}-prod.yaml
+
+  deploy-app:
+    needs: get-namespaces
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        namespace: ${{ fromJSON(needs.get-namespaces.outputs.namespaces) }}
+    env:
+      PROD_NAMESPACE: '${{ inputs.PREFIX_NAMESPACE }}-prod'
+    timeout-minutes: 5
     steps:
       - name: Github event
         run: cat ${GITHUB_EVENT_PATH}
@@ -42,13 +57,29 @@ jobs:
           token: ${{ secrets.GH_PRIVATE_TOKEN }}
           path: ./.github/github-actions-private
 
+      - name: Set development env
+        if: matrix.namespace != env.PROD_NAMESPACE
+        run: |
+          echo "CLUSTER=DEV" >> $GITHUB_ENV
+          echo "GATEKEEPER_CLIENT_ID=dev-fullstack-helm" >> $GITHUB_ENV
+          echo "GATEKEEPER_HELM_API_KEY=${{ secrets.GATEKEEPER_HELM_API_KEY }}" >> $GITHUB_ENV
+
+      - name: Set prod env
+        if: matrix.namespace == env.PROD_NAMESPACE
+        run: |
+          echo "CLUSTER=PROD" >> $GITHUB_ENV
+          echo "GATEKEEPER_CLIENT_ID=prod-fullstack-helm" >> $GITHUB_ENV
+          echo "GATEKEEPER_HELM_API_KEY=${{ secrets.GATEKEEPER_HELM_API_KEY_PROD }}" >> $GITHUB_ENV
+
       - name: Deploy
         uses: ./.github/github-actions-private/gatekeeper-helm
         with:
           gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
-          gatekeeper-api-key: ${{ secrets.GATEKEEPER_HELM_API_KEY }}
+          gatekeeper-api-key: ${{ env.GATEKEEPER_HELM_API_KEY }}
           helm-release-name: '${{ github.event.repository.name }}'
           helm-namespace: '${{ matrix.namespace }}'
           helm-values: 'values/${{ matrix.namespace }}.yaml'
           helm-chart-repo-run-dir: './chart'
           gke-cluster: '${{ env.CLUSTER }}'
+          gatekeeper-build-timeout: 25
+          gatekeeper-grpc-timeout: 25

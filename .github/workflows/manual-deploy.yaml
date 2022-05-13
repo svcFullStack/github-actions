@@ -6,17 +6,6 @@ on:
       NAMESPACE:
         required: true
         type: string
-      GATEKEEPER_CLIENT_ID:
-        required: true
-        type: string
-      CLUSTER:
-        required: true
-        type: string
-    secrets:
-      GH_PRIVATE_TOKEN: 
-        required: true
-      GATEKEEPER_HELM_API_KEY: 
-        required: true
 
 jobs:
   deploy-app:
@@ -32,6 +21,20 @@ jobs:
         with:
           ref: ${{ env.GITHUB_REF }}
 
+      - name: Set development env
+        if: contains(inputs.NAMESPACE, 'prod') != true
+        run: |
+          echo "CLUSTER=DEV" >> $GITHUB_ENV
+          echo "GATEKEEPER_CLIENT_ID=dev-fullstack-helm" >> $GITHUB_ENV
+          echo "GATEKEEPER_HELM_API_KEY=${{ secrets.GATEKEEPER_HELM_API_KEY }}" >> $GITHUB_ENV
+
+      - name: Set prod env
+        if: contains(inputs.NAMESPACE, 'prod')
+        run: |
+          echo "CLUSTER=PROD" >> $GITHUB_ENV
+          echo "GATEKEEPER_CLIENT_ID=prod-fullstack-helm" >> $GITHUB_ENV
+          echo "GATEKEEPER_HELM_API_KEY=${{ secrets.GATEKEEPER_HELM_API_KEY_PROD }}" >> $GITHUB_ENV
+
       - name: Checkout private actions
         uses: actions/checkout@v3
         with:
@@ -42,10 +45,10 @@ jobs:
       - name: Deploy
         uses: ./.github/github-actions-private/gatekeeper-helm
         with:
-          gatekeeper-client-id: '${{ inputs.GATEKEEPER_CLIENT_ID }}'
-          gatekeeper-api-key: '${{ secrets.GATEKEEPER_HELM_API_KEY }}'
+          gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
+          gatekeeper-api-key: '${{ env.GATEKEEPER_HELM_API_KEY }}'
           helm-release-name: '${{ github.event.repository.name }}'
           helm-namespace: '${{ inputs.NAMESPACE }}'
           helm-values: 'values/${{ inputs.NAMESPACE }}.yaml'
           helm-chart-repo-run-dir: './chart'
-          gke-cluster: '${{ inputs.CLUSTER }}'
+          gke-cluster: '${{ env.CLUSTER }}'
