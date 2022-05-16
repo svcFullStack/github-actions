@@ -9,6 +9,11 @@ on:
       NODE_VERSION:
         required: true
         type: string
+    secrets:
+      GH_PRIVATE_TOKEN:
+        required: true
+      GATEKEEPER_HELM_API_KEY:
+        required: true
 
 env:
   CONTAINER_REGISTRY: gcr.io/devl-fullstack-252416

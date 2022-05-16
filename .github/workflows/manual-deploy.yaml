@@ -6,6 +6,13 @@ on:
       NAMESPACE:
         required: true
         type: string
+    secrets:
+      GH_PRIVATE_TOKEN:
+        required: true
+      GATEKEEPER_HELM_API_KEY:
+        required: true
+      GATEKEEPER_HELM_API_KEY_PROD:
+        required: true
 
 jobs:
   deploy-app:

@@ -2,11 +2,9 @@ name: PR Labeler
 
 on:
   workflow_call:
-    inputs:
-      CONFIGURATION_PATH:
-        required: false
-        type: string
-        default: .github/pr-labeler.yaml
+    secrets:
+      GH_TOKEN:
+        required: true
 
 jobs:
   pr-labeler:
@@ -14,6 +12,6 @@ jobs:
     steps:
       - uses: TimonVS/pr-labeler-action@v3
         with:
-          configuration-path: ${{ inputs.CONFIGURATION_PATH }}
+          configuration-path: .github/pr-labeler.yaml
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

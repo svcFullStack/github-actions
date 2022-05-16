@@ -12,6 +12,13 @@ on:
       SENTRY_PROJECT_NAME:
         required: true
         type: string
+      BUILD_COMMAND:
+        required: false
+        type: string
+        default: npm run build:prodfr
+    secrets:
+      SENTRY_AUTH_TOKEN:
+        required: true
 
 jobs:
   sentry:
@@ -36,7 +43,7 @@ jobs:
         run: echo "PACKAGE_VERSION=$(grep '"version"' package.json | cut -d '"' -f 4)" >> $GITHUB_ENV
 
       - name: Build
-        run: npm run build --prod
+        run: ${{ inputs.BUILD_COMMAND }}
 
       - name: Setup Sentry CLI
         uses: mathrix-education/setup-sentry-cli@1.2.0

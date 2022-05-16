@@ -2,11 +2,9 @@ name: Release Drafter
 
 on:
   workflow_call:
-    inputs:
-      CONFIG_NAME:
-        required: false
-        type: string
-        default: release-drafter.yaml
+    secrets:
+      GH_TOKEN:
+        required: true
 
 jobs:
   update_release_draft:
@@ -16,9 +14,9 @@ jobs:
         id: drafter
         uses: release-drafter/release-drafter@v5
         with:
-          config-name: ${{ inputs.CONFIG_NAME }}
+          config-name: release-drafter.yaml
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Checkout Project
         uses: actions/checkout@v3
