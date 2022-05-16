@@ -12,9 +12,6 @@ on:
       SENTRY_PROJECT_NAME:
         required: true
         type: string
-    secrets:
-      SENTRY_AUTH_TOKEN:
-        required: true
 
 jobs:
   sentry:

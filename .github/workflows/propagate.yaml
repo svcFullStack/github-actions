@@ -9,9 +9,6 @@ on:
       ENVIRONMENT:
         required: true
         type: string
-    secrets:
-      GH_PRIVATE_TOKEN:
-        required: true
 
 jobs:
   deploy-app:
