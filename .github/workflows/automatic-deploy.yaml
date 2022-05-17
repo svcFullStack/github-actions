@@ -45,8 +45,6 @@ jobs:
     strategy:
       matrix:
         namespace: ${{ fromJSON(needs.get-namespaces.outputs.namespaces) }}
-    env:
-      PROD_NAMESPACE: '${{ inputs.PREFIX_NAMESPACE }}-prod'
     timeout-minutes: 5
     steps:
       - name: Github event
@@ -65,20 +63,21 @@ jobs:
           path: ./.github/github-actions-private
 
       - name: Set development env
-        if: matrix.namespace != env.PROD_NAMESPACE
+        if: contains(matrix.namespace, 'prod') != true
         run: |
           echo "CLUSTER=DEV" >> $GITHUB_ENV
           echo "GATEKEEPER_CLIENT_ID=dev-fullstack-helm" >> $GITHUB_ENV
           echo "GATEKEEPER_HELM_API_KEY=${{ secrets.GATEKEEPER_HELM_API_KEY }}" >> $GITHUB_ENV
 
       - name: Set prod env
-        if: matrix.namespace == env.PROD_NAMESPACE
+        if: contains(matrix.namespace, 'prod') && matrix.namespace != 'bsosi-prod'
         run: |
           echo "CLUSTER=PROD" >> $GITHUB_ENV
           echo "GATEKEEPER_CLIENT_ID=prod-fullstack-helm" >> $GITHUB_ENV
           echo "GATEKEEPER_HELM_API_KEY=${{ secrets.GATEKEEPER_HELM_API_KEY_PROD }}" >> $GITHUB_ENV
 
       - name: Deploy
+        if: matrix.namespace != 'bsosi-prod'
         uses: ./.github/github-actions-private/gatekeeper-helm
         with:
           gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
