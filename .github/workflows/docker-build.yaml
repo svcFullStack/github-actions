@@ -14,6 +14,8 @@ on:
         required: true
       GATEKEEPER_HELM_API_KEY:
         required: true
+      GCP_GHA_ACCOUNT_KEY:
+        required: true
 
 env:
   CONTAINER_REGISTRY: gcr.io/devl-fullstack-252416
