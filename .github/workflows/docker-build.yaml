@@ -24,7 +24,7 @@ env:
   GITHUB_USER: ${{ github.actor }}
   NODE_VERSION: ${{ inputs.NODE_VERSION }}
   GATEKEEPER_CLIENT_ID: prod-fullstack-gcr
-  SENTRY_API_KEY: ${{secrets.SENTRY_API_KEY}}
+  SENTRY_API_KEY: ${{ secrets.SENTRY_API_KEY }}
 
 jobs:
   build-docker:
