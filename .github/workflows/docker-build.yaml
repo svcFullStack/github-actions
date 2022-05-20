@@ -16,12 +16,15 @@ on:
         required: true
       GATEKEEPER_API_KEY:
         required: true
+      SENTRY_API_KEY:
+        required: false
 
 env:
   CONTAINER_REGISTRY: gcr.io/devl-fullstack-252416
   GITHUB_USER: ${{ github.actor }}
   NODE_VERSION: ${{ inputs.NODE_VERSION }}
   GATEKEEPER_CLIENT_ID: prod-fullstack-gcr
+  SENTRY_API_KEY: ${{ secrets.SENTRY_API_KEY }}
 
 jobs:
   build-docker:
