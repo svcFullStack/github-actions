@@ -57,6 +57,9 @@ jobs:
       - name: Git infos
         id: gitinfo
         uses: ./.github/github-actions-private/ga-git-info
+        
+      - name: Get package.json version
+        run: echo "PACKAGE_VERSION=$(grep '"version"' package.json | cut -d '"' -f 4)" >> $GITHUB_ENV
 
       - name: Build Docker Image
         id: docker-image
