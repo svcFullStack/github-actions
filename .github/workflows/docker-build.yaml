@@ -17,7 +17,7 @@ on:
       GATEKEEPER_API_KEY:
         required: true
       SENTRY_API_KEY:
-        required: true
+        required: false
 
 env:
   CONTAINER_REGISTRY: gcr.io/devl-fullstack-252416
