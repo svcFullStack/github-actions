@@ -66,6 +66,7 @@ jobs:
           gatekeeper-client-id: '${{ env.GATEKEEPER_CLIENT_ID }}'
           gatekeeper-api-key: ${{ secrets.GATEKEEPER_API_KEY }}
           image-tags: ${{steps.gitinfo.outputs.commit-ref-san}}-${{steps.gitinfo.outputs.commit-short-hash}}
+          docker-build-params: "--build-arg SENTRY_API_KEY --build-arg PACKAGE_VERSION"
 
       - name: Update values file
         id: update-values
