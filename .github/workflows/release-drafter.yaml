@@ -33,7 +33,7 @@ jobs:
         with:
           commit-message: 'Bumped the NPM version to match next release'
           title: 'Bumped the NPM version to match next release'
-          commiter: GitHub <noreply@github.com>
+          committer: GitHub <noreply@github.com>
           branch: chore/npm-version-bump
           labels: chore
           base: ${{ github.event.repository.default_branch }}
