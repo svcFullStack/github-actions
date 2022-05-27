@@ -9,6 +9,9 @@ on:
       NODE_VERSION:
         required: true
         type: string
+      CHART_NAME:
+        required: false
+        type: string
     secrets:
       GH_PRIVATE_TOKEN:
         required: true
@@ -25,6 +28,7 @@ env:
   NODE_VERSION: ${{ inputs.NODE_VERSION }}
   GATEKEEPER_CLIENT_ID: prod-fullstack-gcr
   SENTRY_API_KEY: ${{ secrets.SENTRY_API_KEY }}
+  CHART_NAME: ${{ inputs.CHART_NAME }}
 
 jobs:
   build-docker:
@@ -71,12 +75,17 @@ jobs:
           image-tags: ${{steps.gitinfo.outputs.commit-ref-san}}-${{steps.gitinfo.outputs.commit-short-hash}}
           docker-build-params: "--build-arg SENTRY_API_KEY --build-arg PACKAGE_VERSION"
 
+      - name: Set chart name
+        if: env.CHART_NAME == ''
+        run: |
+          echo "CHART_NAME=${{ inputs.PREFIX_NAMESPACE }}-devl" >> $GITHUB_ENV
+
       - name: Update values file
         id: update-values
         uses: ./.github/github-actions-private/update-image-value
         with:
           image-name: ${{ steps.docker-image.outputs.image-tag }}
-          values-file: '/chart/values/${{ inputs.PREFIX_NAMESPACE }}-devl.yaml'
+          values-file: '/chart/values/${{ env.CHART_NAME }}.yaml'
 
       - name: Temporarily disable "include administrators" branch protection
         uses: benjefferies/branch-protection-bot@master
