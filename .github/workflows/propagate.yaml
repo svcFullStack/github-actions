@@ -9,6 +9,10 @@ on:
       ENVIRONMENT:
         required: true
         type: string
+      FONC_AVAILABLE:
+        required: false
+        type: boolean
+        default: false
     secrets:
       GH_PRIVATE_TOKEN:
         required: true
@@ -34,11 +38,18 @@ jobs:
           path: ./.github/github-actions-private
 
       - name: Extract image name devl
-        if: inputs.ENVIRONMENT == 'acpt'
+        if: (inputs.ENVIRONMENT == 'acpt' && inputs.FONC_AVAILABLE == false) || inputs.ENVIRONMENT == 'fonc'
         id: extract-image-name-devl
         uses: ./.github/github-actions-private/extract-image-value
         with:
           values-file: '/chart/values/${{ inputs.PREFIX_NAMESPACE }}-devl.yaml'
+
+      - name: Extract image name fonc
+        if: inputs.ENVIRONMENT == 'acpt' && inputs.FONC_AVAILABLE
+        id: extract-image-name-fonc
+        uses: ./.github/github-actions-private/extract-image-value
+        with:
+          values-file: '/chart/values/${{ inputs.PREFIX_NAMESPACE }}-fonc.yaml'
 
       - name: Extract image name acpt
         if: inputs.ENVIRONMENT == 'pprd'
@@ -58,7 +69,7 @@ jobs:
         id: update-values
         uses: ./.github/github-actions-private/update-image-value
         with:
-          image-name: ${{ steps.extract-image-name-devl.outputs.image-name || steps.extract-image-name-acpt.outputs.image-name || steps.extract-image-name-pprd.outputs.image-name }}
+          image-name: ${{ steps.extract-image-name-devl.outputs.image-name || steps.extract-image-name-fonc.outputs.image-name ||steps.extract-image-name-acpt.outputs.image-name || steps.extract-image-name-pprd.outputs.image-name }}
           values-file: '/chart/values/${{ inputs.PREFIX_NAMESPACE }}-${{ inputs.ENVIRONMENT }}.yaml'
 
       - name: Temporarily disable "include administrators" branch protection

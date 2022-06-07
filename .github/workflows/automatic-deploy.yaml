@@ -35,6 +35,8 @@ jobs:
         with:
           filters: |
             ${{ inputs.PREFIX_NAMESPACE }}-devl: chart/values/${{ inputs.PREFIX_NAMESPACE }}-devl.yaml
+            ${{ inputs.PREFIX_NAMESPACE }}-fonc: chart/values/${{ inputs.PREFIX_NAMESPACE }}-fonc.yaml
+            ${{ inputs.PREFIX_NAMESPACE }}-fullstack: chart/values/${{ inputs.PREFIX_NAMESPACE }}-fullstack.yaml
             ${{ inputs.PREFIX_NAMESPACE }}-acpt: chart/values/${{ inputs.PREFIX_NAMESPACE }}-acpt.yaml
             ${{ inputs.PREFIX_NAMESPACE }}-pprd: chart/values/${{ inputs.PREFIX_NAMESPACE }}-pprd.yaml
             ${{ inputs.PREFIX_NAMESPACE }}-prod: chart/values/${{ inputs.PREFIX_NAMESPACE }}-prod.yaml
