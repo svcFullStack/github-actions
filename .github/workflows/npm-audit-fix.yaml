@@ -29,7 +29,7 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: Create audit fix pr
-        uses: ybiquitous/npm-audit-fix-action@v3
+        uses: ybiquitous/npm-audit-fix-action@v4
         with:
           github_token: ${{ secrets.GH_TOKEN }}
           branch: 'chore/npm-audit-fix'
